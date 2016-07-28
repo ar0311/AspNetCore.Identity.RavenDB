@@ -17,7 +17,6 @@
   },
 
   "dependencies": {
-    "NETStandard.Library": "1.6.0",
     "Microsoft.AspNetCore.Identity": "1.0.0",
     "RavenDB.Client": "3.5.0-rc-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0"
