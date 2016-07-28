@@ -1,11 +1,19 @@
 ﻿{
   "version": "1.0.0-alpha1",
-  "description": "AspNetCore.Identity.RavenDB Class Library",
+  "description": "RavenDB Storage Provider for Identity on AspNet Core.",
   "authors": [ "" ],
   "packOptions": {
-    "tags": [ "" ],
-    "projectUrl": "",
-    "licenseUrl": ""
+    "tags": [ "ASP.NET", "Core", ".NET", "RavenDB", "Identity" ],
+    "projectUrl": "https://github.com/ar0311/AspNetCore.Identity.RavenDB",
+    "licenseUrl": "http://www.gnu.org/licenses/gpl-3.0.en.html"
+  },
+
+  "configurations": {
+    "Release": {
+      "buildOptions": {
+        "optimize": true
+      }
+    }
   },
 
   "dependencies": {
@@ -18,8 +26,9 @@
   "frameworks": {
     "net451": {},
     "netstandard1.6": {
-      "dependencies": { 
-        "System.ComponentModel.TypeConverter": "4.1.0" },
+      "dependencies": {
+        "System.ComponentModel.TypeConverter": "4.1.0"
+      },
       "imports": [ "" ]
     }
   }
