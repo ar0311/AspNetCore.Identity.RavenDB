@@ -1,6 +1,6 @@
 ﻿{
   "version": "1.0.0-alpha1",
-  "description": "RavenDB Storage Provider for Identity on AspNet Core.",
+  "description": "RavenDB Storage Provider for Identity on ASP.NET Core.",
   "authors": [ "" ],
   "packOptions": {
     "tags": [ "ASP.NET", "Core", ".NET", "RavenDB", "Identity" ],
