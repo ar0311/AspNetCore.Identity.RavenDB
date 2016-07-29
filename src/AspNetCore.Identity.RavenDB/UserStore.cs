@@ -415,13 +415,6 @@ namespace AspNetCore.Identity.RavenDB
             _disposed = true;
         }
 
-        //private DbSet<TRole> Roles { get { return Context.Set<TRole>(); } }
-        //private IQueryable<TRole> Roles { get { return Session.Query<TRole>(); } }
-        //private DbSet<IdentityUserClaim<TKey>> UserClaims { get { return Context.Set<IdentityUserClaim<TKey>>(); } }
-        //private IQueryable<Claim> UserClaims { get { return Session.Query<Claim>(); } }
-        //private DbSet<IdentityUserRole<TKey>> UserRoles { get { return Context.Set<IdentityUserRole<TKey>>(); } }
-        //private IAsyncDocumentQuery<IdentityUserRole<TKey>> UserRoles { get { return Session.Advanced.AsyncDocumentQuery<IdentityUserRole<TKey>>(); } }
-        //private DbSet<IdentityUserLogin<TKey>> UserLogins { get { return Context.Set<IdentityUserLogin<TKey>>(); } }
         private IQueryable<IdentityUserLogin<TKey>> UserLogins { get { return Session.Query<IdentityUserLogin<TKey>>(); } }
 
         public virtual async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
@@ -432,9 +425,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            //var user2 = await Session.LoadAsync<TUser>(ConvertIdToString(user.Id));
             return await Task.FromResult(user.Claims.ToList());
-            //return await UserClaims.Where(uc => uc.UserId.Equals(user.Id)).Select(c => new Claim(c.ClaimType, c.ClaimValue, c.)).ToListAsync(cancellationToken);
         }
 
         public virtual Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
@@ -474,12 +465,6 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(newClaim));
             }
 
-            //var matchedClaims = await UserClaims.Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToListAsync(cancellationToken);
-            //foreach (var matchedClaim in matchedClaims)
-            //{
-            //    matchedClaim.ClaimValue = newClaim.Value;
-            //    matchedClaim.ClaimType = newClaim.Type;
-            //}
             var matchedClaims = user.Claims.Where(c => c.Value == claim.Value && c.Type == claim.Type);
             foreach (var matchedClaim in matchedClaims.ToList())
             {
@@ -503,11 +488,6 @@ namespace AspNetCore.Identity.RavenDB
             }
             foreach (var claim in claims)
             {
-                //var matchedClaims = await UserClaims.Where(uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type).ToListAsync(cancellationToken);
-                //foreach (var c in matchedClaims)
-                //{
-                //Session.Delete(c);
-                //}
                 var matchedClaims = user.Claims.Where(c => c.Value == claim.Value && c.Type == claim.Type);
                 foreach (var c in matchedClaims)
                 {

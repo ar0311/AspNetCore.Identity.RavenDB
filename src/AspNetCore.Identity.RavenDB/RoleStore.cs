@@ -73,7 +73,7 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            //Context.Add(role);
+
             await Session.StoreAsync(role);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
@@ -87,9 +87,9 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            //Context.Attach(role);
+
             role.ConcurrencyStamp = Guid.NewGuid().ToString();
-            //Context.Update(role);
+
             try
             {
                 await SaveChanges(cancellationToken);
@@ -290,7 +290,6 @@ namespace AspNetCore.Identity.RavenDB
             get { return Session.Query<TRole>(); }
         }
 
-        //private DbSet<IdentityRoleClaim<TKey>> RoleClaims { get { return Context.Set<IdentityRoleClaim<TKey>>(); } }
         private IQueryable<IdentityRoleClaim<TKey>> RoleClaims { get { return Session.Query<IdentityRoleClaim<TKey>>(); } }
     }
 }
