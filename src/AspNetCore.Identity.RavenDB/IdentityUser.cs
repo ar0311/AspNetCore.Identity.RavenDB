@@ -101,7 +101,7 @@ namespace AspNetCore.Identity.RavenDB
         /// <summary>
         ///     Navigation property for users logins
         /// </summary>
-        //public virtual ICollection<IdentityUserLogin<TKey>> Logins { get; } = new List<IdentityUserLogin<TKey>>();
+        public virtual ICollection<IdentityUserLogin<TKey>> Logins { get; } = new List<IdentityUserLogin<TKey>>();
 
         /// <summary>
         /// Returns a friendly name
