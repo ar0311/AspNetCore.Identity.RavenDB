@@ -510,15 +510,14 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(login));
             }
-            var l = new IdentityUserLogin<TKey>
+
+            // TODO: add checks so we don't add the same provider twice
+            user.Logins.Add(new IdentityUserLogin<TKey>()
             {
-                UserId = user.Id,
-                ProviderKey = login.ProviderKey,
                 LoginProvider = login.LoginProvider,
+                ProviderKey = login.ProviderKey,
                 ProviderDisplayName = login.ProviderDisplayName
-            };
-            // TODO: fixup so we don't have to update both
-            Session.StoreAsync(l);
+                });
             return Task.FromResult(false);
         }
 
@@ -531,12 +530,22 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var userId = user.Id;
-            var entry = await UserLogins.SingleOrDefaultAsync(l => l.UserId.Equals(userId) && l.LoginProvider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
-            if (entry != null)
+
+            var login = user.Logins.SingleOrDefault(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey);
+
+            if (login != null)
             {
-                Session.Delete(entry);
+                user.Logins.Remove(login);
             }
+
+            await Task.FromResult(true);
+
+            //var userId = user.Id;
+            //var entry = await UserLogins.SingleOrDefaultAsync(l => l.UserId.Equals(userId) && l.LoginProvider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
+            //if (entry != null)
+            //{
+            //    Session.Delete(entry);
+            //}
         }
 
         public async virtual Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
@@ -547,9 +556,10 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var userId = user.Id;
-            return await UserLogins.Where(l => l.UserId.Equals(userId))
-                .Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName)).ToListAsync(cancellationToken);
+            return await Task.FromResult<IList<UserLoginInfo>>(Enumerable.ToList(Enumerable.Select(user.Logins, l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName))));
+            //var userId = user.Id;
+            //return await UserLogins.Where(l => l.UserId.Equals(userId))
+                //.Select(l => new UserLoginInfo(l.LoginProvider, l.ProviderKey, l.ProviderDisplayName)).ToListAsync(cancellationToken);
         }
 
         public async virtual Task<TUser> FindByLoginAsync(string loginProvider, string providerKey,
@@ -557,13 +567,16 @@ namespace AspNetCore.Identity.RavenDB
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var userLogin = await
-                UserLogins.FirstOrDefaultAsync(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
-            if (userLogin != null)
-            {
-                return await Users.FirstOrDefaultAsync(u => u.Id.Equals(userLogin.UserId), cancellationToken);
-            }
-            return null;
+
+            return await Users.FirstOrDefaultAsync(u => u.Logins.Any(login => login.LoginProvider == loginProvider && login.ProviderKey == providerKey), cancellationToken);
+            
+            //var userLogin = await
+            //    UserLogins.FirstOrDefaultAsync(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey, cancellationToken);
+            //if (userLogin != null)
+            //{
+            //    return await Users.FirstOrDefaultAsync(u => u.Id.Equals(userLogin.UserId), cancellationToken);
+            //}
+            //return null;
         }
 
         /// <summary>
