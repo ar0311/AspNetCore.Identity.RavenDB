@@ -40,6 +40,7 @@ namespace AspNetCore.Identity.RavenDB
         IUserPhoneNumberStore<TUser>,
         IUserTwoFactorStore<TUser>,
         IQueryableUserStore<TUser>
+        //IUserAuthenticationTokenStore<TUser>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
         where TSession : IAsyncDocumentSession
