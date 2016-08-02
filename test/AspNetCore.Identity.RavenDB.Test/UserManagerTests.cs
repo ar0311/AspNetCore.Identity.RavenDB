@@ -103,6 +103,25 @@ namespace AspNetCore.Identity.RavenDB.Test
         }
 
         [Fact]
+        public async Task CanCreateAndFindByLogin()
+        {
+            var manager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+            var user = new IdentityUser()
+            {
+                UserName = "TestUser",
+                Email = "testuser@testdomain.com"
+            };
+
+            await manager.CreateAsync(user);
+            await manager.AddLoginAsync(user, new UserLoginInfo("provider", "key", "name"));
+
+            var found = await manager.FindByLoginAsync("provider", "key");
+
+            Assert.NotNull(found);
+        }
+
+        [Fact]
         public async Task CanCreateAndFindByUserNameWithUserManager()
         {
             var manager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
