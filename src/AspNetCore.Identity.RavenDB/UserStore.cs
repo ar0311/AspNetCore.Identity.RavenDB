@@ -416,8 +416,6 @@ namespace AspNetCore.Identity.RavenDB
             _disposed = true;
         }
 
-        private IQueryable<IdentityUserLogin<TKey>> UserLogins { get { return Session.Query<IdentityUserLogin<TKey>>(); } }
-
         public virtual async Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfDisposed();
