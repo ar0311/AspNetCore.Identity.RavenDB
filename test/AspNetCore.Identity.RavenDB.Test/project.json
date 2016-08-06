@@ -6,8 +6,8 @@
     "AspNetCore.Identity.RavenDB": "1.0.0-*",
     "xunit": "2.2.0-beta2-build3300",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "RavenDB.Client": "3.5.0-rc-*",
-    "RavenDB.Database": "3.5.0-rc-*",
+    "RavenDB.Client": "3.5.0-rc-35166",
+    "RavenDB.Database": "3.5.0-rc-35166",
     "Microsoft.Extensions.Configuration": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0"
   },
