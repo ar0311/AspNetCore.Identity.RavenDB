@@ -201,7 +201,6 @@ namespace AspNetCore.Identity.RavenDB
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            var id = ConvertIdFromString(userId);
             return Session.LoadAsync<TUser>(userId, cancellationToken);
         }
 
