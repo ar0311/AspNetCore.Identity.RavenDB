@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Collections.Generic;
 
 namespace AspNetCore.Identity.RavenDB
@@ -26,7 +27,7 @@ namespace AspNetCore.Identity.RavenDB
         }
     }
 
-    public class IdentityRole<TKey> : IdentityRole<TKey, IdentityUserRole<TKey>, IdentityRoleClaim<TKey>>
+    public class IdentityRole<TKey> : IdentityRole<TKey, IdentityUserRole<TKey>, Claim>
         where TKey : IEquatable<TKey>
     {
     }
@@ -34,10 +35,10 @@ namespace AspNetCore.Identity.RavenDB
     ///     Represents a Role entity
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
-    public class IdentityRole<TKey, TUserRole, TRoleClaim>
+    public class IdentityRole<TKey, TUserRole, TClaim>
         where TKey : IEquatable<TKey>
         where TUserRole : IdentityUserRole<TKey>
-        where TRoleClaim : IdentityRoleClaim<TKey>
+        where TClaim : Claim
     {
         public IdentityRole() { }
 
@@ -58,7 +59,7 @@ namespace AspNetCore.Identity.RavenDB
         /// <summary>
         ///     Navigation property for claims in the role
         /// </summary>
-        public virtual ICollection<IdentityRoleClaim<TKey>> Claims { get; } = new List<IdentityRoleClaim<TKey>>();
+        public virtual ICollection<Claim> Claims { get; } = new List<Claim>();
 
         /// <summary>
         ///     Role id

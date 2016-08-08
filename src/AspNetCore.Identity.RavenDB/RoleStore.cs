@@ -183,8 +183,8 @@ namespace AspNetCore.Identity.RavenDB
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var roleId = ConvertIdFromString(id);
-            return Roles.FirstOrDefaultAsync(r => r.Id.Equals(roleId), cancellationToken);
+
+            return Session.LoadAsync<TRole>(id, cancellationToken);
         }
 
         /// <summary>
@@ -197,6 +197,7 @@ namespace AspNetCore.Identity.RavenDB
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             return Roles.FirstOrDefaultAsync(r => r.NormalizedName == normalizedName, cancellationToken);
         }
 
@@ -247,7 +248,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(role));
             }
 
-            return await RoleClaims.Where(rc => rc.RoleId.Equals(role.Id)).Select(c => new Claim(c.ClaimType, c.ClaimValue)).ToListAsync(cancellationToken);
+            return await Task.FromResult(role.Claims.ToList());
         }
 
         public Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
@@ -262,12 +263,13 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(claim));
             }
 
-            Session.StoreAsync(new IdentityRoleClaim<TKey> { RoleId = role.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
+            // TODO add checking for existing claims so we don't add twice?
+            role.Claims.Add(claim);
 
             return Task.FromResult(false);
         }
 
-        public async Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        public Task RemoveClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfDisposed();
             if (role == null)
@@ -278,18 +280,18 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(claim));
             }
-            var claims = await RoleClaims.Where(rc => rc.RoleId.Equals(role.Id) && rc.ClaimValue == claim.Value && rc.ClaimType == claim.Type).ToListAsync(cancellationToken);
-            foreach (var c in claims)
+
+            var matchedClaims = role.Claims.Where(c => c.Value == claim.Value && c.Type == claim.Type);
+            foreach (var c in matchedClaims)
             {
-                Session.Delete(c);
+                role.Claims.Remove(c);
             }
+            return Task.FromResult(false);
         }
 
         public virtual IQueryable<TRole> Roles
         {
             get { return Session.Query<TRole>(); }
         }
-
-        private IQueryable<IdentityRoleClaim<TKey>> RoleClaims { get { return Session.Query<IdentityRoleClaim<TKey>>(); } }
     }
 }
