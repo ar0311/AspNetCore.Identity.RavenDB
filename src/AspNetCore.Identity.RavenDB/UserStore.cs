@@ -35,7 +35,7 @@ namespace AspNetCore.Identity.RavenDB
         IUserSecurityStampStore<TUser>,
         IUserEmailStore<TUser>,
         IUserLoginStore<TUser>,
-        //IUserRoleStore<TUser>,
+        IUserRoleStore<TUser>,
         IUserLockoutStore<TUser>,
         IUserPhoneNumberStore<TUser>,
         IUserTwoFactorStore<TUser>,
@@ -236,6 +236,10 @@ namespace AspNetCore.Identity.RavenDB
             return Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName, cancellationToken);
         }
 
+        private IQueryable<TRole> Roles
+        {
+            get { return Session.Query<TRole>(); }
+        }
         public virtual IQueryable<TUser> Users
         {
             get { return Session.Query<TUser>(); }
@@ -296,26 +300,26 @@ namespace AspNetCore.Identity.RavenDB
         /// <param name="roleName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        //public async virtual Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-        //    ThrowIfDisposed();
-        //    if (user == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(user));
-        //    }
-        //    if (String.IsNullOrWhiteSpace(roleName))
-        //    {
-        //        throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
-        //    }
-        //    var roleEntity = await Roles.SingleOrDefaultAsync(r => r.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
-        //    if (roleEntity == null)
-        //    {
-        //        throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, "Role not found.", roleName));
-        //    }
-        //    var ur = new IdentityUserRole<TKey> { UserId = user.Id, RoleId = roleEntity.Id };
-        //    await Session.StoreAsync(ur);
-        //}
+        public async virtual Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (String.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
+            }
+            var roleEntity = await Roles.SingleOrDefaultAsync(r => r.Name == roleName, cancellationToken);
+            if (roleEntity == null)
+            {
+                throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, "Role not found.", roleName));
+            }
+
+            user.Roles.Add(roleEntity);
+        }
 
         /// <summary>
         ///     Remove a user from a role
@@ -324,28 +328,26 @@ namespace AspNetCore.Identity.RavenDB
         /// <param name="roleName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        //public async virtual Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-        //    ThrowIfDisposed();
-        //    if (user == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(user));
-        //    }
-        //    if (String.IsNullOrWhiteSpace(roleName))
-        //    {
-        //        throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
-        //    }
-        //    var roleEntity = await Roles.SingleOrDefaultAsync(r => r.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
-        //    if (roleEntity != null)
-        //    {
-        //        var userRole = await UserRoles.FirstOrDefaultAsync(r => roleEntity.Id.Equals(r.RoleId) && r.UserId.Equals(user.Id), cancellationToken);
-        //        if (userRole != null)
-        //        {
-        //            Session.Delete(userRole);
-        //        }
-        //    }
-        //}
+        public virtual Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (String.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
+            }
+            var roleEntity = user.Roles.SingleOrDefault(r => r.Name.ToUpper() == roleName.ToUpper());
+            if (roleEntity != null)
+            {
+                user.Roles.Remove(roleEntity);
+            }
+
+            return Task.FromResult(false);
+        }
 
         /// <summary>
         ///     Get the names of the roles a user is a member of
@@ -353,23 +355,40 @@ namespace AspNetCore.Identity.RavenDB
         /// <param name="user"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        //public virtual async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-        //    ThrowIfDisposed();
-        //    if (user == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(user));
-        //    }
-        //    var userId = user.Id;
+        public virtual async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
 
-        //    //var query = from userRole in UserRoles
-        //                //join role in Roles on userRole.RoleId equals role.Id
-        //                //where userRole.UserId.Equals(userId)
-        //                //select role.Name;
+            var roleNames = (from role in user.Roles select role.Name).ToList();
+            return await Task.FromResult(roleNames);
+        }
 
-        //    //return await query.ToListAsync();
-        //}
+        /// <summary>
+        ///     Get all users in given role
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async virtual Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (String.IsNullOrEmpty(roleName))
+            {
+                throw new ArgumentNullException(nameof(roleName));
+            }
+
+            var query = from user in Users
+                        where user.Roles.Any(ur => ur.Name == roleName)
+                        select user;
+
+            return await query.ToListAsync(cancellationToken);
+        }
 
         /// <summary>
         ///     Returns true if the user is in the named role
@@ -378,27 +397,25 @@ namespace AspNetCore.Identity.RavenDB
         /// <param name="roleName"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        //public virtual async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-        //    ThrowIfDisposed();
-        //    if (user == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(user));
-        //    }
-        //    if (string.IsNullOrWhiteSpace(roleName))
-        //    {
-        //        throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
-        //    }
-        //    var role = await Roles.SingleOrDefaultAsync(r => r.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
-        //    if (role != null)
-        //    {
-        //        var userId = user.Id;
-        //        var roleId = role.Id;
-        //        return await UserRoles.AnyAsync(ur => ur.RoleId.Equals(roleId) && ur.UserId.Equals(userId));
-        //    }
-        //    return false;
-        //}
+        public virtual async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                throw new ArgumentException("Value cannot be null or empty.", nameof(roleName));
+            }
+
+            if (user.Roles.Any(r => r.Name.ToUpper() == roleName.ToUpper()))
+            {
+                return await Task.FromResult(true);
+            }
+            return await Task.FromResult(false);
+        }
 
         private void ThrowIfDisposed()
         {
@@ -440,11 +457,9 @@ namespace AspNetCore.Identity.RavenDB
             }
             foreach (var claim in claims)
             {
-                //Session.StoreAsync(new IdentityUserClaim<TKey> { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value });
                 // TODO add checking for existing claims so we don't add twice?
                 user.Claims.Add(claim);
             }
-            //await Session.StoreAsync(user);
             return Task.FromResult(false);
         }
 
@@ -961,34 +976,5 @@ namespace AspNetCore.Identity.RavenDB
 
             return await query.ToListAsync(cancellationToken);
         }
-
-        /// <summary>
-        ///     Get all users in given role
-        /// </summary>
-        /// <param name="roleName"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        //public async virtual Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-        //    ThrowIfDisposed();
-        //    if (String.IsNullOrEmpty(roleName))
-        //    {
-        //        throw new ArgumentNullException(nameof(roleName));
-        //    }
-
-        //    var role = await Roles.Where(x => x.Name.Equals(roleName)).FirstOrDefaultAsync(cancellationToken);
-
-        //    if (role != null)
-        //    {
-        //        var query = from userrole in UserRoles
-        //                    join user in Users on userrole.UserId equals user.Id
-        //                    where userrole.RoleId.Equals(role.Id)
-        //                    select user;
-
-        //        return await query.ToListAsync(cancellationToken);
-        //    }
-        //    return new List<TUser>();
-        //}
     }
 }

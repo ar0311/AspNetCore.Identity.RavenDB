@@ -90,7 +90,7 @@ namespace AspNetCore.Identity.RavenDB
         /// <summary>
         ///     Navigation property for users in the role
         /// </summary>
-        public virtual ICollection<IdentityUserRole<TKey>> Roles { get; } = new List<IdentityUserRole<TKey>>();
+        public virtual ICollection<IdentityRole<TKey>> Roles { get; } = new List<IdentityRole<TKey>>();
 
         /// <summary>
         ///     Storage property for users claims
