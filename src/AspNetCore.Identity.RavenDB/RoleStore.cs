@@ -184,7 +184,7 @@ namespace AspNetCore.Identity.RavenDB
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             var roleId = ConvertIdFromString(id);
-            return Roles.FirstOrDefaultAsync(u => u.Id.Equals(roleId), cancellationToken);
+            return Roles.FirstOrDefaultAsync(r => r.Id.Equals(roleId), cancellationToken);
         }
 
         /// <summary>
