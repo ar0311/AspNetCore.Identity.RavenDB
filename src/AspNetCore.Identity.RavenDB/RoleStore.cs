@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Raven.Client;
 using Raven.Abstractions.Exceptions;
