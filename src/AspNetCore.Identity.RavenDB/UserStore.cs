@@ -53,6 +53,7 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(session));
             }
+            session.Advanced.UseOptimisticConcurrency = true;
             Session = session;
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
