@@ -76,7 +76,7 @@ namespace AspNetCore.Identity.RavenDB.Test
 
             var user2 = await userStore.FindByIdAsync(user.Id);
             var claims2 = await userStore.GetClaimsAsync(user2);
-            Assert.True(user2.Claims.Count == 2);
+            Assert.True(claims2.Count == 2);
         }
 
         [Fact]
