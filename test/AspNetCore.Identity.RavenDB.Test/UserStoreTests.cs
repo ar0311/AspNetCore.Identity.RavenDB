@@ -74,7 +74,6 @@ namespace AspNetCore.Identity.RavenDB.Test
             var y = await userStore.UpdateAsync(user);
             Assert.True(y.Succeeded);
 
-            var session2 = GetEmbeddedStore().OpenAsyncSession();
             var userStore2 = new UserStore<IdentityUser>(session);
             var user2 = await userStore2.FindByIdAsync(user.Id);
             var claims2 = await userStore.GetClaimsAsync(user2);
