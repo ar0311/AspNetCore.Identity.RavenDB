@@ -17,7 +17,7 @@ namespace AspNetCore.Identity.RavenDB
     {
         public UserStore(IAsyncDocumentSession session, IdentityErrorDescriber describer = null) : base(session, describer) { }
     }
-    public class UserStore<TUser> : UserStore<TUser, IdentityRole, IAsyncDocumentSession>
+    public class UserStore<TUser> : UserStore<TUser, IdentityRole, IAsyncDocumentSession, string>
         where TUser : IdentityUser<string>, new()
     {
         public UserStore(IAsyncDocumentSession session, IdentityErrorDescriber describer = null) : base(session, describer) { }
@@ -29,7 +29,16 @@ namespace AspNetCore.Identity.RavenDB
     {
         public UserStore(TSession session, IdentityErrorDescriber describer = null) : base(session, describer) { }
     }
-    public class UserStore<TUser, TRole, TSession, TKey> :
+
+    public class UserStore<TUser, TRole, TSession, TKey> : UserStore<TUser, TRole, TSession, TKey, IdentityUserLogin<TKey>, IdentityUserRole<TKey>,  IdentityUserToken<TKey>>
+        where TUser : IdentityUser<TKey>, new()
+        where TRole : IdentityRole<TKey>, new()
+        where TSession : IAsyncDocumentSession
+        where TKey : IEquatable<TKey>
+    {
+        public UserStore(TSession session, IdentityErrorDescriber describer = null) : base(session, describer) { }
+    }
+    public class UserStore<TUser, TRole, TSession, TKey, TUserLogin, TUserRole, TUserToken> :
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
         IUserSecurityStampStore<TUser>,
@@ -39,12 +48,15 @@ namespace AspNetCore.Identity.RavenDB
         IUserLockoutStore<TUser>,
         IUserPhoneNumberStore<TUser>,
         IUserTwoFactorStore<TUser>,
-        IQueryableUserStore<TUser>
-        //IUserAuthenticationTokenStore<TUser>
+        IQueryableUserStore<TUser>,
+        IUserAuthenticationTokenStore<TUser>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
         where TSession : IAsyncDocumentSession
         where TKey : IEquatable<TKey>
+        where TUserRole : IdentityUserRole<TKey>
+        where TUserLogin : IdentityUserLogin<TKey>
+        where TUserToken : IdentityUserToken<TKey>
     {
 
         public UserStore(TSession session, IdentityErrorDescriber describer = null)
@@ -978,6 +990,94 @@ namespace AspNetCore.Identity.RavenDB
                         select user;
 
             return await query.ToListAsync(cancellationToken);
+        }
+
+        private IQueryable<TUserToken> UserTokens
+        {
+            get { return Session.Query<TUserToken>(); }
+        }
+
+        private Task<TUserToken> FindToken(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            var userId = user.Id;
+            return UserTokens.SingleOrDefaultAsync(l => l.UserId.Equals(userId) && l.LoginProvider == loginProvider && l.Name == name, cancellationToken);
+        }
+
+        /// <summary>
+        /// Sets the token value for a particular user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="loginProvider">The authentication provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="value">The value of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public virtual async Task SetTokenAsync(TUser user, string loginProvider, string name, string value, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var token = await FindToken(user, loginProvider, name, cancellationToken);
+            if (token == null)
+            {
+                //UserTokens.Add(CreateUserToken(user, loginProvider, name, value));
+                //Session.StoreAsync(_NEWTOKEN_);
+            }
+            else
+            {
+                token.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Deletes a token for a user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="loginProvider">The authentication provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public async Task RemoveTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var userId = user.Id;
+            var entry = await UserTokens.SingleOrDefaultAsync(l => l.UserId.Equals(userId) && l.LoginProvider == loginProvider && l.Name == name, cancellationToken);
+            if (entry != null)
+            {
+                //UserTokens.Remove(entry);
+            }
+        }
+
+        /// <summary>
+        /// Returns the token value.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="loginProvider">The authentication provider for the token.</param>
+        /// <param name="name">The name of the token.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        public async Task<string> GetTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var entry = await FindToken(user, loginProvider, name, cancellationToken);
+            return entry?.Value;
         }
     }
 }
