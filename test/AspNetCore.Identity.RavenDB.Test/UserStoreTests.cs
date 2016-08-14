@@ -31,6 +31,7 @@ namespace AspNetCore.Identity.RavenDB.Test
             user.UserName = "Test User";
             user.Email = "testuser@testdomain.com";
             user.NormalizedEmail = "testuser@testdomain.com";
+            user.NormalizedUserName = "TEST USER";
             var result = await userStore.CreateAsync(user);
 
             Assert.True(result.Succeeded);
@@ -48,6 +49,9 @@ namespace AspNetCore.Identity.RavenDB.Test
 
             var users = await userStore.Users.AnyAsync();
             Assert.True(users);
+
+            var query3 = await userStore.FindByNameAsync(user.NormalizedUserName);
+            Assert.NotNull(query3);
         }
 
         [Fact]
@@ -192,8 +196,58 @@ namespace AspNetCore.Identity.RavenDB.Test
             var userinrole = await userStore.IsInRoleAsync(user, "test role");
 
             Assert.True(userinrole);
+
+            var userroles = await userStore.GetRolesAsync(user);
+            Assert.True(userroles.Contains("test Role"));
         }
 
+        [Fact]
+        public async Task CanCheckForUsersinRole()
+        {
+            var session = GetEmbeddedStore().OpenAsyncSession();
+            var userStore = new UserStore<IdentityUser>(session);
+
+            var roleStore = new RoleStore<IdentityRole>(session);
+
+            var user = new IdentityUser()
+            {
+                UserName = "TestUser",
+                Email = "testuser@testdomain.com"
+            };
+
+            var user2 = new IdentityUser()
+            {
+                UserName = "TestUser2",
+                Email = "testuser2@testdomain.com"
+            };
+
+            var role = new IdentityRole
+            {
+                Name = "test Role"
+            };
+
+            var r = await roleStore.CreateAsync(role);
+            Assert.True(r.Succeeded);
+
+            var x = await userStore.CreateAsync(user);
+            Assert.True(x.Succeeded);
+
+            var y = await userStore.CreateAsync(user2);
+            Assert.True(y.Succeeded);
+
+            await userStore.AddToRoleAsync(user, "test Role");
+            await userStore.UpdateAsync(user);
+
+            await userStore.AddToRoleAsync(user2, "test Role");
+            await userStore.UpdateAsync(user2);
+
+            var usersinrole = await userStore.GetUsersInRoleAsync("test Role");
+
+            Assert.True(usersinrole.Count == 2);
+
+            var userroles = await userStore.GetRolesAsync(user);
+            Assert.True(userroles.Contains("test Role"));
+        }
         [Fact]
         public async Task CanAddRolesToUser()
         {
@@ -223,6 +277,43 @@ namespace AspNetCore.Identity.RavenDB.Test
             var userinrole = await userStore.IsInRoleAsync(user, "Test Role");
 
             Assert.True(userinrole);
+        }
+
+        [Fact]
+        public async Task CanDeleteRolesFromUser()
+        {
+            var session = GetEmbeddedStore().OpenAsyncSession();
+            session.Advanced.WaitForIndexesAfterSaveChanges();
+            var userStore = new UserStore<IdentityUser>(session);
+            var roleStore = new RoleStore<IdentityRole>(session);
+
+            var user = new IdentityUser()
+            {
+                UserName = "TestUser",
+                Email = "testuser@testdomain.com"
+            };
+
+            var role = new IdentityRole
+            {
+                Name = "Test Role"
+            };
+
+            await roleStore.CreateAsync(role);
+
+            await userStore.CreateAsync(user);
+
+            await userStore.AddToRoleAsync(user, "Test Role");
+            await userStore.UpdateAsync(user);
+
+            var userinrole = await userStore.IsInRoleAsync(user, "Test Role");
+
+            Assert.True(userinrole);
+
+            await userStore.RemoveFromRoleAsync(user, "Test Role");
+            await userStore.UpdateAsync(user);
+
+            var userinrole2 = await userStore.IsInRoleAsync(user, "Test Role");
+            Assert.False(userinrole2);
         }
     }
 }
