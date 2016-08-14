@@ -51,6 +51,31 @@ namespace AspNetCore.Identity.RavenDB.Test
         }
 
         [Fact]
+        public async Task CanCreateAndDeleteUser()
+        {
+            var session = GetEmbeddedStore().OpenAsyncSession();
+            var userStore = new UserStore<IdentityUser>(session);
+
+            var user = new IdentityUser();
+            user.UserName = "Test User";
+            user.Email = "testuser@testdomain.com";
+            user.NormalizedEmail = "testuser@testdomain.com";
+            var result = await userStore.CreateAsync(user);
+
+            Assert.True(result.Succeeded);
+
+            //query using UserStore
+            var user2 = await userStore.FindByEmailAsync(user.NormalizedEmail);
+            Assert.NotNull(user2);
+
+            var result2 = await userStore.DeleteAsync(user2);
+            Assert.True(result2.Succeeded);
+
+            var users = await userStore.Users.AnyAsync();
+            Assert.False(users);
+        }
+
+        [Fact]
         public async Task CanCreateClaimsAndQueryThem()
         {
             var session = GetEmbeddedStore().OpenAsyncSession();
