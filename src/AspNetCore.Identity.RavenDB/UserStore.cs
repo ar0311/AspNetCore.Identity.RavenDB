@@ -233,7 +233,7 @@ namespace AspNetCore.Identity.RavenDB
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return Users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName, cancellationToken);
+            return Users.FirstAsync(u => u.NormalizedUserName == normalizedUserName, cancellationToken);
         }
 
         private IQueryable<TRole> Roles
