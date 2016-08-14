@@ -441,7 +441,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return await Task.FromResult(user.Claims.ToList());
+            return await Task.FromResult<IList<Claim>>(Enumerable.ToList(Enumerable.Select(user.Claims, c => c.ToClaim())));
         }
 
         public virtual Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
@@ -458,7 +458,9 @@ namespace AspNetCore.Identity.RavenDB
             foreach (var claim in claims)
             {
                 // TODO add checking for existing claims so we don't add twice?
-                user.Claims.Add(claim);
+                var userClaim = new IdentityUserClaim();
+                userClaim.InitializeFromClaim(claim);
+                user.Claims.Add(userClaim);
             }
             return Task.FromResult(false);
         }
@@ -484,8 +486,9 @@ namespace AspNetCore.Identity.RavenDB
             {
                 user.Claims.Remove(matchedClaim);
             }
-
-            user.Claims.Add(newClaim);
+            var userClaim = new IdentityUserClaim();
+            userClaim.InitializeFromClaim(newClaim);
+            user.Claims.Add(userClaim);
             return Task.FromResult(false);
         }
 
@@ -971,7 +974,7 @@ namespace AspNetCore.Identity.RavenDB
             }
 
             var query = from user in Users
-                        where user.Claims.Any(uc => uc == claim)
+                        where user.Claims.Any(uc => uc.Type == claim.Type && uc.Value == claim.Value)
                         select user;
 
             return await query.ToListAsync(cancellationToken);

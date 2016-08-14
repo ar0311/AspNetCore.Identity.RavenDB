@@ -27,7 +27,7 @@ namespace AspNetCore.Identity.RavenDB
         }
     }
 
-    public class IdentityRole<TKey> : IdentityRole<TKey, IdentityUserRole<TKey>, Claim>
+    public class IdentityRole<TKey> : IdentityRole<TKey, IdentityUserRole<TKey>, IdentityRoleClaim>
         where TKey : IEquatable<TKey>
     {
     }
@@ -38,7 +38,7 @@ namespace AspNetCore.Identity.RavenDB
     public class IdentityRole<TKey, TUserRole, TClaim>
         where TKey : IEquatable<TKey>
         where TUserRole : IdentityUserRole<TKey>
-        where TClaim : Claim
+        where TClaim : IdentityRoleClaim
     {
         public IdentityRole() { }
 
@@ -59,7 +59,7 @@ namespace AspNetCore.Identity.RavenDB
         /// <summary>
         ///     Navigation property for claims in the role
         /// </summary>
-        public virtual ICollection<Claim> Claims { get; } = new List<Claim>();
+        public virtual ICollection<IdentityRoleClaim> Claims { get; } = new List<IdentityRoleClaim>();
 
         /// <summary>
         ///     Role id

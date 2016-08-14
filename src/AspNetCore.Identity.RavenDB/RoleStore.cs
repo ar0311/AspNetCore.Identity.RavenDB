@@ -248,7 +248,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(role));
             }
 
-            return await Task.FromResult(role.Claims.ToList());
+            return await Task.FromResult<IList<Claim>>(Enumerable.ToList(Enumerable.Select(role.Claims, c => c.ToClaim())));
         }
 
         public Task AddClaimAsync(TRole role, Claim claim, CancellationToken cancellationToken = default(CancellationToken))
@@ -264,7 +264,9 @@ namespace AspNetCore.Identity.RavenDB
             }
 
             // TODO add checking for existing claims so we don't add twice?
-            role.Claims.Add(claim);
+            var roleClaim = new IdentityRoleClaim();
+            roleClaim.InitializeFromClaim(claim);
+            role.Claims.Add(roleClaim);
 
             return Task.FromResult(false);
         }

@@ -96,7 +96,7 @@ namespace AspNetCore.Identity.RavenDB
         ///     Storage property for users claims
         /// </summary>
         //public virtual ICollection<IdentityUserClaim<TKey>> Claims { get; } = new List<IdentityUserClaim<TKey>>();
-        public virtual ICollection<Claim> Claims { get; } = new List<Claim>();
+        public virtual ICollection<IdentityUserClaim> Claims { get; } = new List<IdentityUserClaim>();
 
         /// <summary>
         ///     Navigation property for users logins
