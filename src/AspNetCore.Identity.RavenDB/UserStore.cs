@@ -154,7 +154,7 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            await Session.StoreAsync(user);
+            await Session.StoreAsync(user, cancellationToken);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }

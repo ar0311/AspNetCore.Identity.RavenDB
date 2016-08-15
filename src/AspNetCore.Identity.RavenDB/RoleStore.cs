@@ -74,7 +74,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(role));
             }
 
-            await Session.StoreAsync(role);
+            await Session.StoreAsync(role, cancellationToken);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }
