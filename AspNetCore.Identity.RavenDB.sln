@@ -1,22 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2D7609AB-3640-48E3-992B-9F2630B27FBE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F50E4C91-BE70-4DDC-AFC8-FD7B579B0216}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetCore.Identity.RavenDB", "src\AspNetCore.Identity.RavenDB\AspNetCore.Identity.RavenDB.xproj", "{5D79D3A1-06C6-44AB-89F3-881B9053CA0F}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetCore.Identity.RavenDB.Test", "test\AspNetCore.Identity.RavenDB.Test\AspNetCore.Identity.RavenDB.Test.xproj", "{0FAF892E-358A-42D7-8DF1-EA8EA57B0624}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C9716A9F-F501-4B35-9A03-9B7A77D609E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.RavenDB", "src\AspNetCore.Identity.RavenDB\AspNetCore.Identity.RavenDB.csproj", "{5D79D3A1-06C6-44AB-89F3-881B9053CA0F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.RavenDB.Test", "test\AspNetCore.Identity.RavenDB.Test\AspNetCore.Identity.RavenDB.Test.csproj", "{0FAF892E-358A-42D7-8DF1-EA8EA57B0624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
