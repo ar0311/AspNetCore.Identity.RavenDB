@@ -29,5 +29,5 @@ public void ConfigureServices(IServiceCollection services)
 
 
 ```
-NOTE: Currently only building against RavenDB 3.5 RC series
-with NET461 and .NETStandard1.6 packages available on Nuget.
+NOTE: Currently only building against RavenDB 3.5 series
+with NET46 and .NETStandard1.3 packages available on Nuget.
