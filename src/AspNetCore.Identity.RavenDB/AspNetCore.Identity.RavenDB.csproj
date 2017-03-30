@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>RavenDB Storage Provider for Identity on ASP.NET Core.</Description>
-    <VersionPrefix>1.0.0-alpha5</VersionPrefix>
+    <VersionPrefix>1.0.0-alpha7</VersionPrefix>
     <TargetFrameworks>netstandard1.3;net46</TargetFrameworks>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <AssemblyName>AspNetCore.Identity.RavenDB</AssemblyName>
