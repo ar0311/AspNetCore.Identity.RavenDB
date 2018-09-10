@@ -9,10 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Raven.Client.Embedded;
-using Raven.Client;
-using Raven.Client.Document;
 using Microsoft.AspNetCore.Identity;
+using Raven.Client.Documents;
 
 namespace AspNetCore.Identity.RavenDB.Test
 {

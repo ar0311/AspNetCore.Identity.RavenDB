@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <Description>AspNetCore.Identity.RavenDB.Test Class Library</Description>
-    <TargetFramework>net46</TargetFramework>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>AspNetCore.Identity.RavenDB.Test</AssemblyName>
     <PackageId>AspNetCore.Identity.RavenDB.Test</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -14,17 +13,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="RoleManagerTests.cs" />
+    <Compile Remove="UserManagerTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\AspNetCore.Identity.RavenDB\AspNetCore.Identity.RavenDB.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="RavenDB.Client" Version="3.5.3" />
-    <PackageReference Include="RavenDB.Database" Version="3.5.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="RavenDB.TestDriver" Version="4.1.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="RavenDB.Client" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>

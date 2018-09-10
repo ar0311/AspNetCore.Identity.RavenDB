@@ -7,9 +7,9 @@ using System.ComponentModel;
 using System.Security.Claims;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
-using Raven.Client;
-using Raven.Abstractions.Exceptions;
-using Raven.Client.Linq;
+using Raven.Client.Documents.Session;
+using Raven.Client.Exceptions;
+using Raven.Client.Documents;
 
 namespace AspNetCore.Identity.RavenDB
 {

@@ -3,23 +3,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using Xunit;
-using Raven.Client;
-using Raven.Client.Embedded;
-using Raven.Client.Document;
+using Raven.TestDriver;
+using Raven.Client.Documents;
 
 //[assembly: CollectionBehavior(MaxParallelThreads = 1)]
 namespace AspNetCore.Identity.RavenDB.Test
 {
-    public class UserStoreTests
+    public class UserStoreTests : RavenTestDriver
     {
         public static IDocumentStore GetEmbeddedStore()
         {
-            return new EmbeddableDocumentStore()
-            {
-                DefaultDatabase = "Identity",
-                RunInMemory = true,
-                Conventions = new DocumentConvention() { DefaultUseOptimisticConcurrency = true }
-            }.Initialize();
+            return GetEmbeddedStore();
+            //{
+            //    DefaultDatabase = "Identity",
+            //    RunInMemory = true,
+            //    Conventions = new DocumentConvention() { DefaultUseOptimisticConcurrency = true }
+            //}.Initialize();
         }
         [Fact]
         public async Task CanCreateAndQueryUser()

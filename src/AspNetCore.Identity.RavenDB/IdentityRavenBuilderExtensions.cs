@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Raven.Client;
+using Raven.Client.Documents.Session;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
